@@ -4,6 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>B97同學會 - 住宿投票</title>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaFK9v8oz66lQl0dwhjPy_44FERdDcGnM",
+            authDomain: "trip-vote-a94c4.firebaseapp.com",
+            projectId: "trip-vote-a94c4",
+            storageBucket: "trip-vote-a94c4.firebasestorage.app",
+            messagingSenderId: "329087750469",
+            appId: "1:329087750469:web:fa1538207a2dd55c7aae2c"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // 导出给全局使用
+        window.firebaseDB = { db, collection, getDocs, addDoc, deleteDoc, doc, writeBatch };
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -683,16 +705,83 @@
         // ====== 程式邏輯 ======
         let selectedPerson = null;
         let selectedOptions = [];
+        let cachedVotes = [];
         
-        // localStorage 投票存储
-        function getVotes() {
+        // 从 Firebase 加载投票
+        async function loadVotesFromFirebase() {
             try {
-                return JSON.parse(localStorage.getItem('tripVotes')) || [];
-            } catch(e) { return []; }
+                const querySnapshot = await window.firebaseDB.getDocs(window.firebaseDB.collection(window.firebaseDB.db, 'votes'));
+                cachedVotes = [];
+                querySnapshot.forEach((doc) => {
+                    cachedVotes.push(doc.data());
+                });
+                localStorage.setItem('tripVotes', JSON.stringify(cachedVotes));
+            } catch(e) {
+                console.log('使用本地缓存', e);
+                try { cachedVotes = JSON.parse(localStorage.getItem('tripVotes')) || []; } 
+                catch(e2) { cachedVotes = []; }
+            }
+            return cachedVotes;
         }
         
+        // 保存投票到 Firebase
+        async function saveVoteToFirebase(person, votes) {
+            try {
+                // 删除该人之前的投票
+                const querySnapshot = await window.firebaseDB.getDocs(window.firebaseDB.collection(window.firebaseDB.db, 'votes'));
+                const batch = window.firebaseDB.writeBatch(window.firebaseDB.db);
+                querySnapshot.forEach((doc) => {
+                    if (doc.data().person === person) {
+                        batch.delete(window.firebaseDB.doc(window.firebaseDB.db, 'votes', doc.id));
+                    }
+                });
+                await batch.commit();
+                
+                // 添加新投票
+                await window.firebaseDB.addDoc(window.firebaseDB.collection(window.firebaseDB.db, 'votes'), {
+                    person: person,
+                    votes: votes,
+                    time: new Date().toLocaleString()
+                });
+                
+                cachedVotes = cachedVotes.filter(v => v.person !== person);
+                cachedVotes.push({ person: person, votes: votes, time: new Date().toLocaleString() });
+                localStorage.setItem('tripVotes', JSON.stringify(cachedVotes));
+                return true;
+            } catch(e) {
+                console.log('Firebase错误，使用本地存储', e);
+                cachedVotes = cachedVotes.filter(v => v.person !== person);
+                cachedVotes.push({ person: person, votes: votes, time: new Date().toLocaleString() });
+                localStorage.setItem('tripVotes', JSON.stringify(cachedVotes));
+                return false;
+            }
+        }
+        
+        // 清除 Firebase 投票
+        async function clearVotesInFirebase() {
+            try {
+                const querySnapshot = await window.firebaseDB.getDocs(window.firebaseDB.collection(window.firebaseDB.db, 'votes'));
+                const batch = window.firebaseDB.writeBatch(window.firebaseDB.db);
+                querySnapshot.forEach((doc) => {
+                    batch.delete(window.firebaseDB.doc(window.firebaseDB.db, 'votes', doc.id));
+                });
+                await batch.commit();
+                cachedVotes = [];
+                localStorage.removeItem('tripVotes');
+            } catch(e) {
+                cachedVotes = [];
+                localStorage.removeItem('tripVotes');
+            }
+        }
+        
+        function getVotes() { return cachedVotes; }
+        
+        // 页面加载时获取数据
+        loadVotesFromFirebase();
+        
         // 顯示所有投票
-        function showAllVotes() {
+        async function showAllVotes() {
+            await loadVotesFromFirebase();
             const votes = getVotes();
             
             // 只保留每個人最新的投票
@@ -759,19 +848,16 @@
         }
         
         // 清空投票
-        function clearVotes() {
+        async function clearVotes() {
             if (confirm('確定要清空所有投票嗎？此動作無法復原！')) {
-                localStorage.removeItem('tripVotes');
+                await clearVotesInFirebase();
                 alert('已清空！');
+                location.reload();
             }
         }
         
-        function saveVote(person, votes) {
-            const votesData = getVotes();
-            votesData.push({ person: person, votes: votes, time: new Date().toLocaleTimeString() });
-            try {
-                localStorage.setItem('tripVotes', JSON.stringify(votesData));
-            } catch(e) {}
+        async function saveVote(person, votes) {
+            await saveVoteToFirebase(person, votes);
         }
         
         function getVoteStats() {
