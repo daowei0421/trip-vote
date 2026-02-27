@@ -800,6 +800,11 @@
                     const region = btn.dataset.region;
                     document.querySelectorAll('.region-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(`region-${region}`).classList.add('active');
+                    
+                    // 如果點"我最隨意"，直接觸發選擇
+                    if (region === 'any') {
+                        toggleOption(99, true);
+                    }
                 });
             });
         }
