@@ -434,7 +434,7 @@
             
             <!-- Tab Navigation -->
             <div class="tab-nav">
-                <div class="tab-btn active" data-region="any">🌟 我最隨意</div>
+                <div class="tab-btn active" data-region="any">🌟 我都可以</div>
                 <div class="tab-btn" data-region="宜蘭">📍 宜蘭</div>
                 <div class="tab-btn" data-region="臺中">📍 臺中</div>
                 <div class="tab-btn" data-region="苗栗">📍 苗栗</div>
@@ -446,7 +446,7 @@
             <div class="region-section active" id="region-any">
                 <div class="option-card any-option">
                     <div class="option-header">
-                        <div class="option-name">👍 我最隨意</div>
+                        <div class="option-name">👍 我都可以</div>
                     </div>
                     <div class="pros-cons">
                         <div class="pros">
@@ -465,7 +465,7 @@
                     </div>
                     <div class="vote-section">
                         <div class="checkbox-btn any-option" data-id="99" onclick="toggleOption(99, true)">
-                            👍 我最隨意
+                            👍 我都可以
                         </div>
                     </div>
                 </div>
@@ -806,7 +806,7 @@
                     document.querySelectorAll('.region-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(`region-${region}`).classList.add('active');
                     
-                    // 如果點"我最隨意"，直接觸發選擇
+                    // 如果點"我都可以"，直接觸發選擇
                     if (region === 'any') {
                         toggleOption(99, true);
                     }
@@ -826,7 +826,7 @@
                 card.classList.remove('selected');
                 selectedOptions = selectedOptions.filter(o => o !== id);
             } else {
-                // 如果選擇"我最隨意"，直接完成投票
+                // 如果選擇"我都可以"，直接完成投票
                 if (isAny) {
                     selectedOptions = [id];
                     // 清除其他所有選擇
@@ -842,7 +842,7 @@
                         return;
                     }
                     
-                    // 移除"我最隨意"的選擇
+                    // 移除"我都可以"的選擇
                     selectedOptions = selectedOptions.filter(o => o !== 99);
                     document.querySelectorAll('.any-option').forEach(b => b.classList.remove('checked'));
                     document.querySelector('.any-option')?.closest('.option-card')?.classList.remove('selected');
@@ -867,7 +867,7 @@
         // 送出投票
         function submitVote() {
             const selectedNames = selectedOptions.map(id => {
-                return accommodations.find(a => a.id === id)?.name || "我最隨意";
+                return accommodations.find(a => a.id === id)?.name || "我都可以";
             });
             
             document.getElementById('step2').classList.remove('active');
