@@ -909,22 +909,49 @@
         
         // 顯示結果畫面
         function showResultScreen(votes) {
-            const stats = getVoteStats();
+            // 保存投票（覆盖同一人之前的投票）
+            const allVotes = getVotes();
+            const filteredVotes = allVotes.filter(v => v.person !== selectedPerson);
+            filteredVotes.push({ person: selectedPerson, votes: votes, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('tripVotes', JSON.stringify(filteredVotes));
+            
+            const latestVotes = {};
+            filteredVotes.forEach(v => { latestVotes[v.person] = v; });
+            const uniqueVotes = Object.values(latestVotes);
+            
+            // 统计票数
+            const stats = {};
+            uniqueVotes.forEach(v => {
+                v.votes.forEach(name => {
+                    stats[name] = (stats[name] || 0) + 1;
+                });
+            });
+            
             let html = '<div style="text-align:center;padding:20px">';
             html += '<h2 style="color:#00aa6c">✅ 投票完成！</h2>';
             html += '<p>👤 <strong>' + selectedPerson + '</strong></p>';
             html += '<p>🏠 選擇：' + votes.join('、') + '</p>';
             
+            // 得票统计
             if (Object.keys(stats).length > 0) {
+                const totalPeople = uniqueVotes.length;
                 html += '<div style="margin-top:20px;padding:15px;background:#f5f5f5;border-radius:10px;text-align:left">';
-                html += '<h4>📊 目前統計：</h4>';
-                for (let name in stats) {
-                    html += '<p>' + name + ': <strong>' + stats[name] + ' 票</strong></p>';
-                }
+                html += '<h4>📊 目前得票：</h4>';
+                
+                // 排序
+                const sorted = Object.entries(stats).sort((a,b) => b[1] - a[1]);
+                sorted.forEach(([name, count]) => {
+                    const percent = Math.round((count / totalPeople) * 100);
+                    html += '<div style="margin:10px 0">';
+                    html += '<div style="display:flex;justify-content:space-between"><span>' + name + '</span><span><strong>' + count + ' 票</strong> (' + percent + '%)</span></div>';
+                    html += '<div style="background:#ddd;height:10px;border-radius:5px;margin-top:3px">';
+                    html += '<div style="background:#ff5a5f;height:100%;border-radius:5px;width:' + percent + '%"></div>';
+                    html += '</div></div>';
+                });
                 html += '</div>';
             }
             
-            html += '<button onclick="location.reload()" style="margin-top:20px;padding:12px 30px;background:#ff5a5f;color:white;border:none;border-radius:25px;font-size:16px;cursor:pointer">🔄 重新投票</button>';
+            html += '<p style="margin-top:20px;color:#888;font-size:12">感謝您的參與！</p>';
             html += '</div>';
             
             document.getElementById('step2').innerHTML = html;
