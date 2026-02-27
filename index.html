@@ -834,7 +834,10 @@
                     document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
                     btn.classList.add('checked');
                     card.classList.add('selected');
-                } else {
+                    
+                    // 直接提交
+                    submitVote();
+                    return; else {
                     // 一般選項
                     // 檢查是否已有2票
                     if (selectedOptions.length >= 2) {
