@@ -142,10 +142,11 @@
         .option-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
-            padding: 16px;
+            padding: 0;
             margin-bottom: 14px;
             transition: all 0.2s;
             background: white;
+            overflow: hidden;
         }
         
         .option-card:hover {
@@ -156,6 +157,17 @@
         .option-card.selected {
             border-color: #ff5a5f;
             background: #fff9f9;
+        }
+        
+        .option-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+        
+        .option-content {
+            padding: 16px;
         }
         
         .option-header {
@@ -519,6 +531,7 @@
                 extraBed: 500,
                 pricePerPerson: Math.round((39800 + 500) / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/680010670650418235",
+                image: "陌野私人會所.avif",
                 capacity: "最多30人",
                 size: "獨棟別墅，空間很大",
                 entertainment: "KTV、麻將、Switch、烤肉、飛鏢機",
@@ -534,6 +547,7 @@
                 extraBed: 500,
                 pricePerPerson: Math.round((39800 + 500) / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/1061984326715674160",
+                image: "蒔光無境.avif",
                 capacity: "最多30人",
                 size: "8房3廳，空間大",
                 entertainment: "KTV、麻將、烤肉、飛鏢機",
@@ -549,6 +563,7 @@
                 extraBed: 500,
                 pricePerPerson: Math.round((40800 + 500) / adultCount),
                 url: "",
+                image: "闊野渡假私人會.avif",
                 capacity: "最多30人",
                 size: "包棟別墅",
                 entertainment: "待確認",
@@ -564,6 +579,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(24113 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/955526475481323252",
+                image: "Tomo包棟民宿.avif",
                 capacity: "約15-20人",
                 size: "中等",
                 entertainment: "包棟",
@@ -579,6 +595,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(32036 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/1503805471765042867",
+                image: "宜蘭兔樂包棟villa.avif",
                 capacity: "約20人",
                 size: "Villa別墅",
                 entertainment: "包棟Villa",
@@ -594,6 +611,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(51671 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/967366630995097189",
+                image: "莫家莊.avif",
                 capacity: "8房24床",
                 size: "有電梯",
                 entertainment: "求婚、抓周、戶外婚禮場地",
@@ -609,6 +627,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(36285 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/1447611367457383175",
+                image: "逢甲商圈包棟.avif",
                 capacity: "16-25人",
                 size: "有電梯、雙客廳",
                 entertainment: "麻將、廚房",
@@ -624,6 +643,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(37892 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/633639264518451806",
+                image: "宣余美術莊園.avif",
                 capacity: "約20人",
                 size: "莊園別墅",
                 entertainment: "莊園環境",
@@ -639,6 +659,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(50638 / adultCount),
                 url: "https://www.airbnb.com.tw/rooms/1608785152441422963",
+                image: "瑞龍山居.avif",
                 capacity: "30人",
                 size: "包棟民宿",
                 entertainment: "山景",
@@ -654,6 +675,7 @@
                 extraBed: 0,
                 pricePerPerson: Math.round(21300 / adultCount),
                 url: "",
+                image: "蕗凡迪娜居旅宿.webp",
                 capacity: "約8-10人",
                 size: "空間較小，需分開住",
                 entertainment: "無",
@@ -717,6 +739,12 @@
             card.className = 'option-card';
             card.dataset.id = option.id;
             
+            // 圖片
+            let imageHTML = '';
+            if (option.image) {
+                imageHTML = `<img src="${option.image}" alt="${option.name}" class="option-image" onerror="this.style.display='none'">`;
+            }
+            
             let urlHTML = option.url ? `<a href="${option.url}" target="_blank">查看詳情</a>` : '';
             
             let priceHTML = `
@@ -727,28 +755,31 @@
             `;
             
             card.innerHTML = `
-                <div class="option-header">
-                    <div class="option-name">${option.name} ${urlHTML}</div>
-                    ${priceHTML}
-                </div>
-                <div class="option-info">
-                    <span class="info-tag">👥 ${option.capacity}</span>
-                    <span class="info-tag">📐 ${option.size}</span>
-                    ${option.entertainment ? `<span class="info-tag">🎮 ${option.entertainment}</span>` : ''}
-                </div>
-                <div class="pros-cons">
-                    <div class="pros">
-                        <h4>✅ 優點</h4>
-                        <ul>${option.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                ${imageHTML}
+                <div class="option-content">
+                    <div class="option-header">
+                        <div class="option-name">${option.name} ${urlHTML}</div>
+                        ${priceHTML}
                     </div>
-                    <div class="cons">
-                        <h4>⚠️ 缺點</h4>
-                        <ul>${option.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                    <div class="option-info">
+                        <span class="info-tag">👥 ${option.capacity}</span>
+                        <span class="info-tag">📐 ${option.size}</span>
+                        ${option.entertainment ? `<span class="info-tag">🎮 ${option.entertainment}</span>` : ''}
                     </div>
-                </div>
-                <div class="vote-section">
-                    <div class="checkbox-btn" data-id="${option.id}" onclick="toggleOption(${option.id}, false)">
-                        👍 投我一票
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ 優點</h4>
+                            <ul>${option.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                        </div>
+                        <div class="cons">
+                            <h4>⚠️ 缺點</h4>
+                            <ul>${option.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                    <div class="vote-section">
+                        <div class="checkbox-btn" data-id="${option.id}" onclick="toggleOption(${option.id}, false)">
+                            👍 投我一票
+                        </div>
                     </div>
                 </div>
             `;
