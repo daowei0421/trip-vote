@@ -46,7 +46,7 @@
         }
         
         .step {
-            padding: 30px;
+            padding: 24px 30px;
             display: none;
         }
         
@@ -56,24 +56,24 @@
         
         .step h2 {
             color: #222;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             font-size: 20px;
             font-weight: 600;
         }
         
         .person-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
         }
         
         .person-btn {
-            padding: 16px 12px;
+            padding: 14px 10px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             background: white;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.2s;
             text-align: center;
             font-weight: 500;
@@ -91,8 +91,45 @@
             border-color: #ff5a5f;
         }
         
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #eee;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 24px;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .tab-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .tab-btn.active {
+            background: #ff5a5f;
+            color: white;
+        }
+        
         .region-section {
-            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .region-section.active {
+            display: block;
         }
         
         .region-title {
@@ -100,16 +137,13 @@
             font-weight: 600;
             color: #222;
             margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #ff5a5f;
-            display: inline-block;
         }
         
         .option-card {
             border: 1px solid #e0e0e0;
             border-radius: 12px;
             padding: 16px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             transition: all 0.2s;
             background: white;
         }
@@ -128,7 +162,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         
         .option-name {
@@ -136,6 +170,18 @@
             font-weight: 600;
             color: #222;
             flex: 1;
+        }
+        
+        .option-name a {
+            color: #ff5a5f;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: normal;
+            margin-left: 8px;
+        }
+        
+        .option-name a:hover {
+            text-decoration: underline;
         }
         
         .option-price {
@@ -153,25 +199,63 @@
             color: #717171;
         }
         
-        .option-tags {
+        .option-info {
             display: flex;
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
         }
         
-        .tag {
+        .info-tag {
             background: #f7f7f7;
-            color: #717171;
+            color: #555;
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 12px;
         }
         
+        .pros-cons {
+            display: flex;
+            gap: 12px;
+            margin: 12px 0;
+            font-size: 13px;
+        }
+        
+        .pros, .cons {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .pros {
+            background: #e8f5e9;
+        }
+        
+        .cons {
+            background: #ffebee;
+        }
+        
+        .pros h4, .cons h4 {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        
+        .pros h4 { color: #2e7d32; }
+        .cons h4 { color: #c62828; }
+        
+        .pros ul, .cons ul {
+            padding-left: 16px;
+            margin: 0;
+        }
+        
+        .pros li, .cons li {
+            margin-bottom: 2px;
+        }
+        
         .vote-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
             padding-top: 12px;
             border-top: 1px solid #eee;
         }
@@ -212,11 +296,6 @@
             background: #ffc107;
             color: white;
             border-color: #ffc107;
-        }
-        
-        .vote-count {
-            color: #717171;
-            font-size: 13px;
         }
         
         .btn {
@@ -304,7 +383,11 @@
             }
             
             .person-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .pros-cons {
+                flex-direction: column;
             }
         }
     </style>
@@ -327,10 +410,79 @@
         <div class="step" id="step2">
             <h2>🗳️ 請選擇住宿偏好（最多2票）</h2>
             <div class="note">
-                💡 您可以選擇 2 個喜歡的選項 + 1 個「我都可」選項<br>
-                💰 費用僅計算大人（12位）
+                💡 選擇 2 個喜歡的選項 + 「我最隨意」<br>
+                💰 費用計算：14位大人 + 加床費用
             </div>
-            <div id="optionsContainer"></div>
+            
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <div class="tab-btn active" data-region="any">🌟 我最隨意</div>
+                <div class="tab-btn" data-region="宜蘭">📍 宜蘭</div>
+                <div class="tab-btn" data-region="臺中">📍 臺中</div>
+                <div class="tab-btn" data-region="苗栗">📍 苗栗</div>
+                <div class="tab-btn" data-region="南投">📍 南投</div>
+                <div class="tab-btn" data-region="彰化">📍 彰化</div>
+            </div>
+            
+            <!-- Any Option -->
+            <div class="region-section active" id="region-any">
+                <div class="option-card any-option">
+                    <div class="option-header">
+                        <div class="option-name">👍 我最隨意</div>
+                    </div>
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <h4>✅ 優點</h4>
+                            <ul>
+                                <li>配合大家，沒意見</li>
+                                <li>服從多數決</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <h4>⚠️ 缺點</h4>
+                            <ul>
+                                <li>無</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="vote-section">
+                        <div class="checkbox-btn any-option" data-id="99" onclick="toggleOption(99, true)">
+                            👍 我最隨意
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 宜蘭 -->
+            <div class="region-section" id="region-宜蘭">
+                <div class="region-title">📍 宜蘭</div>
+                <div id="options-宜蘭"></div>
+            </div>
+            
+            <!-- 臺中 -->
+            <div class="region-section" id="region-臺中">
+                <div class="region-title">📍 臺中市</div>
+                <div id="options-臺中"></div>
+            </div>
+            
+            <!-- 苗栗 -->
+            <div class="region-section" id="region-苗栗">
+                <div class="region-title">📍 苗栗縣</div>
+                <div id="options-苗栗"></div>
+            </div>
+            
+            <!-- 南投 -->
+            <div class="region-section" id="region-南投">
+                <div class="region-title">📍 南投縣</div>
+                <div id="options-南投"></div>
+            </div>
+            
+            <!-- 彰化 -->
+            <div class="region-section" id="region-彰化">
+                <div class="region-title">📍 彰化縣</div>
+                <div id="options-彰化"></div>
+            </div>
+            
             <button class="btn" id="submitBtn" disabled>送出確認 ✅</button>
         </div>
         
@@ -356,30 +508,22 @@
             "雞滑", "雞翔"
         ];
         
-        const adultCount = 12;
+        const adultCount = 14;
         
         const accommodations = [
-            // 我都可（放最上面）
-            {
-                id: 99,
-                name: "👍 我都OK",
-                location: "",
-                price: 0,
-                pricePerPerson: "",
-                pros: ["配合大家", "沒意見"],
-                cons: [],
-                isAny: true,
-                region: ""
-            },
-            // 宜蘭
             {
                 id: 1,
                 name: "陌野私人會所",
                 location: "宜蘭縣員山鄉",
                 price: 39800,
-                pricePerPerson: Math.round(39800 / adultCount),
-                pros: ["最多30人", "KTV/麻將/Switch/烤肉", "獨立別墅隱私好"],
-                cons: ["宜蘭偏遠", "需要開車"],
+                extraBed: 500,
+                pricePerPerson: Math.round((39800 + 500) / adultCount),
+                url: "https://www.airbnb.com.tw/rooms/680010670650418235",
+                capacity: "最多30人",
+                size: "獨棟別墅，空間很大",
+                entertainment: "KTV、麻將、Switch、烤肉、飛鏢機",
+                pros: ["空間非常大，14人完全OK", "獨立別墅隱私好", "設施最齊全", "KTV/麻將/烤肉/Switch"],
+                cons: ["宜蘭偏遠，需要開車"],
                 region: "宜蘭"
             },
             {
@@ -387,8 +531,13 @@
                 name: "蒔光無境",
                 location: "宜蘭縣",
                 price: 39800,
-                pricePerPerson: Math.round(39800 / adultCount),
-                pros: ["最多30人", "8房3廳", "KTV/麻將/烤肉"],
+                extraBed: 500,
+                pricePerPerson: Math.round((39800 + 500) / adultCount),
+                url: "https://www.airbnb.com.tw/rooms/1061984326715674160",
+                capacity: "最多30人",
+                size: "8房3廳，空間大",
+                entertainment: "KTV、麻將、烤肉、飛鏢機",
+                pros: ["8房3廳，空間充足", "設施多元", "包棟隱私好"],
                 cons: ["宜蘭偏遠"],
                 region: "宜蘭"
             },
@@ -397,8 +546,13 @@
                 name: "闊野渡假私人會所",
                 location: "宜蘭縣",
                 price: 40800,
-                pricePerPerson: Math.round(40800 / adultCount),
-                pros: ["包棟別墅", "設施齊全"],
+                extraBed: 500,
+                pricePerPerson: Math.round((40800 + 500) / adultCount),
+                url: "",
+                capacity: "最多30人",
+                size: "包棟別墅",
+                entertainment: "待確認",
+                pros: ["包棟別墅", "空間大"],
                 cons: ["宜蘭偏遠"],
                 region: "宜蘭"
             },
@@ -407,9 +561,14 @@
                 name: "Tomo包棟民宿",
                 location: "宜蘭縣頭城鎮",
                 price: 24113,
+                extraBed: 0,
                 pricePerPerson: Math.round(24113 / adultCount),
-                pros: ["包棟", "價格較便宜"],
-                cons: ["宜蘭偏遠"],
+                url: "https://www.airbnb.com.tw/rooms/955526475481323252",
+                capacity: "約15-20人",
+                size: "中等",
+                entertainment: "包棟",
+                pros: ["價格最便宜", "包棟"],
+                cons: ["空間可能稍擠", "宜蘭偏遠"],
                 region: "宜蘭"
             },
             {
@@ -417,53 +576,90 @@
                 name: "宜蘭兔樂包棟",
                 location: "宜蘭縣",
                 price: 32036,
+                extraBed: 0,
                 pricePerPerson: Math.round(32036 / adultCount),
-                pros: ["Villa別墅", "包棟"],
+                url: "https://www.airbnb.com.tw/rooms/1503805471765042867",
+                capacity: "約20人",
+                size: "Villa別墅",
+                entertainment: "包棟Villa",
+                pros: ["Villa別墅", "環境優美"],
                 cons: ["宜蘭偏遠"],
                 region: "宜蘭"
             },
-            // 臺中市
             {
                 id: 6,
                 name: "莫家莊",
                 location: "臺中市后里區",
                 price: 51671,
+                extraBed: 0,
                 pricePerPerson: Math.round(51671 / adultCount),
-                pros: ["麗寶樂園附近", "有電梯", "可求婚/抓周"],
-                cons: ["距離遠"],
-                region: "臺中市"
+                url: "https://www.airbnb.com.tw/rooms/967366630995097189",
+                capacity: "8房24床",
+                size: "有電梯",
+                entertainment: "求婚、抓周、戶外婚禮場地",
+                pros: ["麗寶樂園附近", "有電梯", "適合家庭活動"],
+                cons: ["距離宜蘭較遠"],
+                region: "臺中"
             },
             {
                 id: 7,
                 name: "逢甲商圈包棟",
                 location: "臺中市",
                 price: 36285,
+                extraBed: 0,
                 pricePerPerson: Math.round(36285 / adultCount),
-                pros: ["逢甲夜市5分鐘", "有電梯", "廚房/麻將"],
-                cons: ["最多25人可能不夠"],
-                region: "臺中市"
+                url: "https://www.airbnb.com.tw/rooms/1447611367457383175",
+                capacity: "16-25人",
+                size: "有電梯、雙客廳",
+                entertainment: "麻將、廚房",
+                pros: ["逢甲夜市5分鐘", "有電梯", "生活機能好"],
+                cons: ["最多25人，14人可能稍擠"],
+                region: "臺中"
             },
-            // 苗栗
             {
                 id: 8,
                 name: "宣余美術莊園",
                 location: "苗栗縣銅鑼鄉",
                 price: 37892,
+                extraBed: 0,
                 pricePerPerson: Math.round(37892 / adultCount),
-                pros: ["莊園別墅", "環境優美"],
-                cons: [""],
+                url: "https://www.airbnb.com.tw/rooms/633639264518451806",
+                capacity: "約20人",
+                size: "莊園別墅",
+                entertainment: "莊園環境",
+                pros: ["莊園別墅環境優美", "遠離城市"],
+                cons: ["較偏遠"],
                 region: "苗栗"
             },
-            // 南投
             {
                 id: 9,
                 name: "瑞龍山居",
                 location: "南投縣",
                 price: 50638,
+                extraBed: 0,
                 pricePerPerson: Math.round(50638 / adultCount),
-                pros: ["山景優美", "包棟民宿"],
+                url: "https://www.airbnb.com.tw/rooms/1608785152441422963",
+                capacity: "30人",
+                size: "包棟民宿",
+                entertainment: "山景",
+                pros: ["山景優美", "包棟", "空間大"],
                 cons: ["較偏遠"],
                 region: "南投"
+            },
+            {
+                id: 10,
+                name: "彰化蕗凡迪娜居旅宿",
+                location: "彰化縣",
+                price: 21300,
+                extraBed: 0,
+                pricePerPerson: Math.round(21300 / adultCount),
+                url: "",
+                capacity: "約8-10人",
+                size: "空間較小，需分開住",
+                entertainment: "無",
+                pros: ["價格最便宜", "近市區"],
+                cons: ["空間很小", "14人無法同住", "需分開訂房", "無娛樂設施"],
+                region: "彰化"
             }
         ];
         
@@ -475,6 +671,7 @@
         function init() {
             renderParticipants();
             renderOptions();
+            setupTabs();
             
             document.getElementById('step1Btn').addEventListener('click', goToStep2);
             document.getElementById('submitBtn').addEventListener('click', submitVote);
@@ -502,27 +699,15 @@
         
         // 渲染住宿選項（按地區分類）
         function renderOptions() {
-            const container = document.getElementById('optionsContainer');
+            const regions = ["宜蘭", "臺中", "苗栗", "南投", "彰化"];
             
-            // 先顯示"我都可"
-            const anyOption = accommodations.find(o => o.isAny);
-            container.appendChild(createOptionCard(anyOption));
-            
-            // 按地區分組
-            const regions = ["宜蘭", "臺中市", "苗栗", "南投"];
             regions.forEach(region => {
+                const container = document.getElementById(`options-${region}`);
                 const options = accommodations.filter(o => o.region === region);
-                if (options.length > 0) {
-                    const regionSection = document.createElement('div');
-                    regionSection.className = 'region-section';
-                    regionSection.innerHTML = `<div class="region-title">📍 ${region}</div>`;
-                    
-                    options.forEach(option => {
-                        regionSection.appendChild(createOptionCard(option));
-                    });
-                    
-                    container.appendChild(regionSection);
-                }
+                
+                options.forEach(option => {
+                    container.appendChild(createOptionCard(option));
+                });
             });
         }
         
@@ -532,36 +717,38 @@
             card.className = 'option-card';
             card.dataset.id = option.id;
             
-            if (option.isAny) {
-                card.classList.add('any-option');
-            }
+            let urlHTML = option.url ? `<a href="${option.url}" target="_blank">查看詳情</a>` : '';
             
-            let tagsHTML = '';
-            if (option.pros.length > 0) {
-                const displayPros = option.pros.slice(0, 3);
-                tagsHTML = `<div class="option-tags">${displayPros.map(p => `<span class="tag">${p}</span>`).join('')}</div>`;
-            }
-            
-            let priceHTML = '';
-            if (!option.isAny) {
-                priceHTML = `
-                    <div class="option-price">
-                        <div class="amount">$${option.price.toLocaleString()}</div>
-                        <div class="per-person">約 $${option.pricePerPerson.toLocaleString()}/人</div>
-                    </div>
-                `;
-            }
+            let priceHTML = `
+                <div class="option-price">
+                    <div class="amount">$${option.price.toLocaleString()}</div>
+                    <div class="per-person">約 $${option.pricePerPerson.toLocaleString()}/人</div>
+                </div>
+            `;
             
             card.innerHTML = `
                 <div class="option-header">
-                    <div class="option-name">${option.name}</div>
+                    <div class="option-name">${option.name} ${urlHTML}</div>
                     ${priceHTML}
                 </div>
-                ${option.location ? `<div style="color:#717171;font-size:14px;margin-bottom:8px">📍 ${option.location}</div>` : ''}
-                ${tagsHTML}
+                <div class="option-info">
+                    <span class="info-tag">👥 ${option.capacity}</span>
+                    <span class="info-tag">📐 ${option.size}</span>
+                    ${option.entertainment ? `<span class="info-tag">🎮 ${option.entertainment}</span>` : ''}
+                </div>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>✅ 優點</h4>
+                        <ul>${option.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                    </div>
+                    <div class="cons">
+                        <h4>⚠️ 缺點</h4>
+                        <ul>${option.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                    </div>
+                </div>
                 <div class="vote-section">
-                    <div class="checkbox-btn ${option.isAny ? 'any-option' : ''}" data-id="${option.id}" onclick="toggleOption(${option.id}, ${option.isAny})">
-                        ${option.isAny ? '👍 我都OK' : '👍 投我一票'}
+                    <div class="checkbox-btn" data-id="${option.id}" onclick="toggleOption(${option.id}, false)">
+                        👍 投我一票
                     </div>
                 </div>
             `;
@@ -569,34 +756,53 @@
             return card;
         }
         
+        // Tab 切換
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 更新按鈕狀態
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // 顯示對應區域
+                    const region = btn.dataset.region;
+                    document.querySelectorAll('.region-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(`region-${region}`).classList.add('active');
+                });
+            });
+        }
+        
         // 切換選項
         function toggleOption(id, isAny) {
             const btn = document.querySelector(`.checkbox-btn[data-id="${id}"]`);
             const card = document.querySelector(`.option-card[data-id="${id}"]`);
+            
+            if (!btn || !card) return;
             
             if (btn.classList.contains('checked')) {
                 btn.classList.remove('checked');
                 card.classList.remove('selected');
                 selectedOptions = selectedOptions.filter(o => o !== id);
             } else {
-                const currentVotes = selectedOptions.filter(o => {
-                    const opt = accommodations.find(a => a.id === o);
-                    return opt && !opt.isAny;
-                });
+                const currentVotes = selectedOptions.filter(o => o !== 99);
                 
                 if (currentVotes.length >= 2 && !isAny) {
-                    alert('最多只能投2票喔！（不含"我都OK"）');
+                    alert('最多只能投2票喔！（不含"我最隨意"）');
                     return;
                 }
                 
                 if (isAny) {
-                    selectedOptions = selectedOptions.filter(o => {
-                        const opt = accommodations.find(a => a.id === o);
-                        return opt && !opt.isAny;
-                    });
-                    document.querySelectorAll('.any-option .checkbox-btn').forEach(b => {
+                    selectedOptions = selectedOptions.filter(o => o !== 99);
+                    document.querySelectorAll('.any-option').forEach(b => {
                         b.classList.remove('checked');
-                        b.closest('.option-card').classList.remove('selected');
+                    });
+                } else {
+                    selectedOptions = selectedOptions.filter(o => o === 99);
+                    document.querySelectorAll('.any-option').forEach(b => {
+                        b.classList.remove('checked');
+                    });
+                    document.querySelectorAll('.option-card:not(.any-option)').forEach(c => {
+                        c.classList.remove('selected');
                     });
                 }
                 
@@ -618,7 +824,7 @@
         // 送出投票
         function submitVote() {
             const selectedNames = selectedOptions.map(id => {
-                return accommodations.find(a => a.id === id).name;
+                return accommodations.find(a => a.id === id)?.name || "我最隨意";
             });
             
             document.getElementById('step2').classList.remove('active');
