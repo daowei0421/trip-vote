@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家族旅行住宿投票</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .step {
+            padding: 30px;
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .step h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 22px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .person-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .person-btn {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .person-btn:hover {
+            border-color: #667eea;
+            background: #f5f7ff;
+            transform: translateY(-2px);
+        }
+        
+        .person-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .option-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102,126,234,0.2);
+        }
+        
+        .option-card.selected {
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+        
+        .option-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: #eee;
+        }
+        
+        .option-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .option-price {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .option-pros-cons {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .pros {
+            flex: 1;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .cons {
+            flex: 1;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .pros h4, .cons h4 {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .vote-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .vote-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .checkbox-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .checkbox-btn:hover {
+            border-color: #667eea;
+        }
+        
+        .checkbox-btn.checked {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .checkbox-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .any-option {
+            background: #fff3e0;
+            border-color: #ffb74d;
+        }
+        
+        .any-option.checked {
+            background: #ff9800;
+            border-color: #ff9800;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .result h2 {
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+        
+        .result-summary {
+            background: #f5f7ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .note {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #e65100;
+        }
+        
+        @media (max-width: 600px) {
+            .option-pros-cons {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 家族旅行住宿投票</h1>
+            <p>4月4日 - 大家一起出去玩！</p>
+        </div>
+        
+        <!-- Step 1: 選擇你是誰 -->
+        <div class="step active" id="step1">
+            <h2>👋 請選擇您的名字</h2>
+            <div class="person-grid" id="personGrid">
+                <!-- 會由 JavaScript 動態生成 -->
+            </div>
+            <button class="btn" id="step1Btn" disabled>下一步</button>
+        </div>
+        
+        <!-- Step 2: 投票 -->
+        <div class="step" id="step2">
+            <h2>🗳️ 請選擇住宿偏好（最多2票）</h2>
+            <div class="note">
+                💡 您可以選擇 2 個喜歡的選項 + 1 個「我都可」選項
+            </div>
+            <div id="optionsContainer">
+                <!-- 會由 JavaScript 動態生成 -->
+            </div>
+            <button class="btn" id="submitBtn" disabled>送出確認 ✅</button>
+        </div>
+        
+        <!-- Step 3: 結果 -->
+        <div class="step" id="step3">
+            <div class="result">
+                <h2>✅ 投票完成！</h2>
+                <p>感謝您的參與～</p>
+                <div class="result-summary" id="resultSummary">
+                    <!-- 顯示選擇的結果 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== 設定資料 ======
+        const participants = [
+            "爸爸", "媽媽", "叔叔", "阿姨",
+            "伯伯", "伯母", "舅舅", "舅媽"
+        ];
+        
+        const accommodations = [
+            {
+                id: 1,
+                name: "陌野私人會所",
+                location: "宜蘭縣員山鄉",
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
+                price: "15,500元（包棟）",
+                pricePerPerson: "約2,662元/人",
+                pros: ["最多30人", "KTV/麻將/Switch/烤肉", "獨立別墅隱私好", "設施最齊全"],
+                cons: ["宜蘭偏遠", "需要開車"]
+            },
+            {
+                id: 2,
+                name: "蒔光無境",
+                location: "宜蘭縣",
+                image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800",
+                price: "待確認",
+                pricePerPerson: "待確認",
+                pros: ["最多30人", "8房3廳", "KTV/麻將/烤肉"],
+                cons: ["宜蘭偏遠"]
+            },
+            {
+                id: 3,
+                name: "莫家莊",
+                location: "台中市后里區",
+                image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800",
+                price: "待確認",
+                pricePerPerson: "待確認",
+                pros: ["麗寶樂園附近", "有電梯", "可求婚/抓周"],
+                cons: ["距離宜蘭較遠"]
+            },
+            {
+                id: 4,
+                name: "逢甲商圈包棟",
+                location: "台中市",
+                image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800",
+                price: "待確認",
+                pricePerPerson: "待確認",
+                pros: ["逢甲夜市5分鐘", "有電梯", "廚房/麻將"],
+                cons: ["最多25人可能不夠"]
+            },
+            {
+                id: 5,
+                name: "我都可",
+                location: "",
+                image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+                price: "",
+                pricePerPerson: "",
+                pros: ["配合大家", "沒意見"],
+                cons: [],
+                isAny: true
+            }
+        ];
+        
+        // ====== 程式邏輯 ======
+        let selectedPerson = null;
+        let selectedOptions = [];
+        
+        // 初始化
+        function init() {
+            renderParticipants();
+            renderOptions();
+            
+            document.getElementById('step1Btn').addEventListener('click', goToStep2);
+            document.getElementById('submitBtn').addEventListener('click', submitVote);
+        }
+        
+        // 渲染參與者列表
+        function renderParticipants() {
+            const grid = document.getElementById('personGrid');
+            participants.forEach(name => {
+                const btn = document.createElement('div');
+                btn.className = 'person-btn';
+                btn.textContent = name;
+                btn.addEventListener('click', () => selectPerson(name, btn));
+                grid.appendChild(btn);
+            });
+        }
+        
+        // 選擇參與者
+        function selectPerson(name, btn) {
+            document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedPerson = name;
+            document.getElementById('step1Btn').disabled = false;
+        }
+        
+        // 渲染住宿選項
+        function renderOptions() {
+            const container = document.getElementById('optionsContainer');
+            
+            accommodations.forEach(option => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.dataset.id = option.id;
+                
+                if (option.isAny) {
+                    card.classList.add('any-option');
+                }
+                
+                let prosHTML = '';
+                if (option.pros.length > 0) {
+                    prosHTML = `
+                        <div class="pros">
+                            <h4>✅ 優點</h4>
+                            <ul>${option.pros.map(p => `<li>${p}</li>`).join('')}</ul>
+                        </div>
+                    `;
+                }
+                
+                let consHTML = '';
+                if (option.cons.length > 0) {
+                    consHTML = `
+                        <div class="cons">
+                            <h4>⚠️ 缺點</h4>
+                            <ul>${option.cons.map(c => `<li>${c}</li>`).join('')}</ul>
+                        </div>
+                    `;
+                }
+                
+                card.innerHTML = `
+                    ${!option.isAny ? `<img src="${option.image}" alt="${option.name}" class="option-image" onerror="this.style.background='#ddd'">` : ''}
+                    <div class="option-name">${option.name}</div>
+                    ${!option.isAny ? `<div class="option-price">💰 ${option.price} <span style="font-size:12px;color:#666">(${option.pricePerPerson})</span></div>` : ''}
+                    ${!option.isAny ? `<div style="color:#666;margin-bottom:10px">📍 ${option.location}</div>` : ''}
+                    <div class="option-pros-cons">
+                        ${prosHTML}
+                        ${consHTML}
+                    </div>
+                    <div class="vote-section">
+                        <span class="vote-label">選擇此選項：</span>
+                        <div class="checkbox-container">
+                            <div class="checkbox-btn ${option.isAny ? 'any-option' : ''}" data-id="${option.id}" onclick="toggleOption(${option.id}, ${option.isAny})">
+                                ${option.isAny ? '👍 我都可以' : '👍 投我一票'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // 切換選項
+        function toggleOption(id, isAny) {
+            const btn = document.querySelector(`.checkbox-btn[data-id="${id}"]`);
+            const card = document.querySelector(`.option-card[data-id="${id}"]`);
+            
+            if (btn.classList.contains('checked')) {
+                // 取消選擇
+                btn.classList.remove('checked');
+                card.classList.remove('selected');
+                selectedOptions = selectedOptions.filter(o => o !== id);
+            } else {
+                // 檢查是否已達2票上限（不包括"我都可"）
+                const currentVotes = selectedOptions.filter(o => {
+                    const opt = accommodations.find(a => a.id === o);
+                    return opt && !opt.isAny;
+                });
+                
+                if (currentVotes.length >= 2 && !isAny) {
+                    alert('最多只能投2票喔！（不含"我都可"）');
+                    return;
+                }
+                
+                // 如果選擇"我都可"，先清除其他"我都可"選項
+                if (isAny) {
+                    selectedOptions = selectedOptions.filter(o => {
+                        const opt = accommodations.find(a => a.id === o);
+                        return opt && !opt.isAny;
+                    });
+                    document.querySelectorAll('.any-option .checkbox-btn').forEach(b => {
+                        b.classList.remove('checked');
+                        b.closest('.option-card').classList.remove('selected');
+                    });
+                }
+                
+                btn.classList.add('checked');
+                card.classList.add('selected');
+                selectedOptions.push(id);
+            }
+            
+            // 更新按鈕狀態
+            document.getElementById('submitBtn').disabled = selectedOptions.length === 0;
+        }
+        
+        // 前往第二步
+        function goToStep2() {
+            if (!selectedPerson) return;
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        }
+        
+        // 送出投票
+        function submitVote() {
+            const selectedNames = selectedOptions.map(id => {
+                return accommodations.find(a => a.id === id).name;
+            });
+            
+            // 顯示結果
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+            
+            document.getElementById('resultSummary').innerHTML = `
+                <div class="result-item"><strong>👤 投票人：</strong>${selectedPerson}</div>
+                <div class="result-item"><strong>🏠 選擇的住宿：</strong></div>
+                ${selectedNames.map(name => `<div style="margin-left:20px;padding:5px">• ${name}</div>`).join('')}
+            `;
+            
+            // 可以這裡加入發送到 LINE 或 email 的功能
+            console.log('投票資料：', {
+                person: selectedPerson,
+                votes: selectedNames
+            });
+        }
+        
+        // 啟動
+        init();
+    </script>
+</body>
+</html>
