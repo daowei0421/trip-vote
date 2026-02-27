@@ -464,7 +464,7 @@
                         </div>
                     </div>
                     <div class="vote-section">
-                        <div class="checkbox-btn any-option" data-id="99" onclick="toggleOption(99, true)">
+                        <div class="checkbox-btn any-option" data-id="99" onclick="selectAnyAndSubmit()">
                             👍 我都可以
                         </div>
                     </div>
@@ -901,6 +901,14 @@
                     }
                 });
             });
+        }
+        
+        // 選擇"我都可以"並直接提交
+        function selectAnyAndSubmit() {
+            selectedOptions = [99];
+            selectedPerson = selectedPerson || "匿名";
+            saveVote();
+            showResults();
         }
         
         // 切換選項
