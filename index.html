@@ -827,33 +827,34 @@
                 card.classList.remove('selected');
                 selectedOptions = selectedOptions.filter(o => o !== id);
             } else {
-                const currentVotes = selectedOptions.filter(o => o !== 99);
-                
-                if (currentVotes.length >= 2 && !isAny) {
-                    alert('最多只能投2票喔！（不含"我最隨意"）');
-                    return;
-                }
-                
+                // 如果選擇"我最隨意"，直接完成投票
                 if (isAny) {
-                    selectedOptions = selectedOptions.filter(o => o !== 99);
-                    document.querySelectorAll('.any-option').forEach(b => {
-                        b.classList.remove('checked');
-                    });
+                    selectedOptions = [id];
+                    // 清除其他所有選擇
+                    document.querySelectorAll('.checkbox-btn').forEach(b => b.classList.remove('checked'));
+                    document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                    btn.classList.add('checked');
+                    card.classList.add('selected');
                 } else {
-                    selectedOptions = selectedOptions.filter(o => o === 99);
-                    document.querySelectorAll('.any-option').forEach(b => {
-                        b.classList.remove('checked');
-                    });
-                    document.querySelectorAll('.option-card:not(.any-option)').forEach(c => {
-                        c.classList.remove('selected');
-                    });
+                    // 一般選項
+                    // 檢查是否已有2票
+                    if (selectedOptions.length >= 2) {
+                        alert('最多只能投2票！');
+                        return;
+                    }
+                    
+                    // 移除"我最隨意"的選擇
+                    selectedOptions = selectedOptions.filter(o => o !== 99);
+                    document.querySelectorAll('.any-option').forEach(b => b.classList.remove('checked'));
+                    document.querySelector('.any-option')?.closest('.option-card')?.classList.remove('selected');
+                    
+                    btn.classList.add('checked');
+                    card.classList.add('selected');
+                    selectedOptions.push(id);
                 }
-                
-                btn.classList.add('checked');
-                card.classList.add('selected');
-                selectedOptions.push(id);
             }
             
+            // 啟用送出按鈕
             document.getElementById('submitBtn').disabled = selectedOptions.length === 0;
         }
         
