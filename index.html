@@ -694,6 +694,95 @@
         // ====== 程式邏輯 ======
         let selectedPerson = null;
         let selectedOptions = [];
+        let allVotes = JSON.parse(localStorage.getItem('tripVotes')) || [];
+        
+        // 儲存投票
+        function saveVote() {
+            const voteData = {
+                person: selectedPerson,
+                votes: selectedOptions.map(id => accommodations.find(a => a.id === id)?.name || "我都可以"),
+                timestamp: new Date().toLocaleString()
+            };
+            allVotes.push(voteData);
+            localStorage.setItem('tripVotes', JSON.stringify(allVotes));
+            return voteData;
+        }
+        
+        // 顯示投票匯總
+        function showResults() {
+            const currentVote = {
+                person: selectedPerson,
+                votes: selectedOptions.map(id => accommodations.find(a => a.id === id)?.name || "我都可以")
+            };
+            
+            // 统计每個選項的票數
+            const voteCount = {};
+            allVotes.forEach(v => {
+                v.votes.forEach(vote => {
+                    voteCount[vote] = (voteCount[vote] || 0) + 1;
+                });
+            });
+            
+            // 排序
+            const sortedVotes = Object.entries(voteCount).sort((a, b) => b[1] - a[1]);
+            
+            let html = `
+                <div class="result-item"><strong>👤 投票人：</strong>${currentVote.person}</div>
+                <div class="result-item"><strong>🏠 選擇的住宿：</strong></div>
+                ${currentVote.votes.map(name => `<div style="margin-left:16px;padding:6px">• ${name}</div>`).join('')}
+            `;
+            
+            if (sortedVotes.length > 0) {
+                html += `
+                    <div class="result-item" style="margin-top:20px;border-top:2px solid #ddd;padding-top:20px">
+                        <strong>📊 目前投票統計：</strong>
+                    </div>
+                `;
+                sortedVotes.forEach(([name, count]) => {
+                    const percent = Math.round((count / allVotes.length) * 100);
+                    html += `
+                        <div style="margin:10px 16px">
+                            <div style="display:flex;justify-content:space-between">
+                                <span>${name}</span>
+                                <span>${count} 票 (${percent}%)</span>
+                            </div>
+                            <div style="background:#eee;height:8px;border-radius:4px;margin-top:4px">
+                                <div style="background:#ff5a5f;height:100%;border-radius:4px;width:${percent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            html += `
+                <button onclick="resetVote()" style="margin-top:20px;padding:12px 24px;background:#666;color:white;border:none;border-radius:8px;cursor:pointer">🔄 重新投票</button>
+                <button onclick="clearAllVotes()" style="margin-top:10px;padding:8px 16px;background:#999;color:white;border:none;border-radius:6px;cursor:font-size:12px">🗑️ 清除所有投票</button>
+            `;
+            
+            document.getElementById('resultSummary').innerHTML = html;
+        }
+        
+        // 清除所有投票
+        function clearAllVotes() {
+            if (confirm('確定要清除所有投票嗎？')) {
+                allVotes = [];
+                localStorage.removeItem('tripVotes');
+                resetVote();
+            }
+        }
+        
+        // 重置投票
+        function resetVote() {
+            selectedPerson = null;
+            selectedOptions = [];
+            document.querySelectorAll('.person-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.checkbox-btn').forEach(b => b.classList.remove('checked'));
+            document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('step1Btn').disabled = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+        }
         
         // 初始化
         function init() {
@@ -837,7 +926,8 @@
                     
                     // 直接提交
                     submitVote();
-                    return; else {
+                    return;
+                } else {
                     // 一般選項
                     // 檢查是否已有2票
                     if (selectedOptions.length >= 2) {
@@ -869,23 +959,8 @@
         
         // 送出投票
         function submitVote() {
-            const selectedNames = selectedOptions.map(id => {
-                return accommodations.find(a => a.id === id)?.name || "我都可以";
-            });
-            
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step3').classList.add('active');
-            
-            document.getElementById('resultSummary').innerHTML = `
-                <div class="result-item"><strong>👤 投票人：</strong>${selectedPerson}</div>
-                <div class="result-item"><strong>🏠 選擇的住宿：</strong></div>
-                ${selectedNames.map(name => `<div style="margin-left:16px;padding:6px">• ${name}</div>`).join('')}
-            `;
-            
-            console.log('投票資料：', {
-                person: selectedPerson,
-                votes: selectedNames
-            });
+            saveVote();
+            showResults();
         }
         
         // 啟動
